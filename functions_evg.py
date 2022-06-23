@@ -1,8 +1,10 @@
 from PIL import Image
 import numpy as np
 import math
+import os
 
-reference_link = r'D:\home\projects\He_multich_analysis\pg.jpg'
+reference_link_basename = 'pg.jpg'
+reference_link = os.path.join(os.getcwd(), reference_link_basename)
 
 
 def create_submatrix(path, upper_row, lower_row, left_col, right_col, rotate):
