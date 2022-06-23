@@ -14,7 +14,7 @@ for img in images_list:
     ch1_data, ch2_data, ch3_data = get_data(os.path.join(dir2work, img))
     temp_intensity = [ch1_data[1], ch2_data[1], ch3_data[1]]
     intensity_list[images_list.index(img)] = temp_intensity
-    print(f'Image {images_list.index(img)+1} made')
+    print(f'Image {images_list.index(img)+1} from {len(images_list)} made')
 
 for i in range(len(intensity_list)):
     ch1_int.append(intensity_list[i][0])
@@ -26,16 +26,16 @@ print(f'Ch2 intensity {ch2_int}')
 print(f'Ch3 intensity {ch3_int}')
 
 plt.subplot(3, 1, 1)
-plt.title('channel 1')
-plt.plot(ch1_int)
+plt.title('channel 1 (728)')
+plt.plot(ch1_int, 'r.-')
 
 plt.subplot(3, 1, 2)
-plt.title('channel 2')
-plt.plot(ch2_int)
+plt.title('channel 2 (706)')
+plt.plot(ch2_int, 'r.-')
 
 plt.subplot(3, 1, 3)
-plt.title('channel 3')
-plt.plot(ch3_int)
+plt.title('channel 3 (667)')
+plt.plot(ch3_int, 'r.-')
 
 plt.tight_layout()
 plt.show()
