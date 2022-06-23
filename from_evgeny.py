@@ -3,11 +3,12 @@ from PIL import Image
 import numpy as np
 import math
 import os.path
+import cv2
 
+reference_link = r'D:\home\projects\He_multich_analysis\pg.jpg'
 
 def create_submatrix(path, upper_row, lower_row, left_col, right_col, rotate):
     im = Image.open(path).convert('L')
-    # print(im.mode)
     pix_matrix = np.array(im)
 
     if rotate == None:
@@ -146,7 +147,7 @@ def find_channel_edge_points(I1, I2, I3, visualize):
     # S1cm = signal.savgol_filter(S1c, win_size, pol_order)
     # S2cm = signal.savgol_filter(S2c, win_size, pol_order)
     # S3cm = signal.savgol_filter(S3c, win_size, pol_order)
-    win_size = 5
+    win_size = 5  # Filter size
     S1rm = ksmooth(j_, S1r, win_size)
     S2rm = ksmooth(j_, S2r, win_size)
     S3rm = ksmooth(j_, S3r, win_size)
@@ -262,7 +263,7 @@ def capillar_position(I3):
 
 
 def capillar_shifts(matr_728, matr_706, matr_667):
-    reference_image = r'C:\Users\joana\PycharmProjects\intensity_est\pg.jpg'
+    reference_image = reference_link
     [I1, top1, left1] = create_sub_cuts_VS(reference_image, 728)
     [I2, top2, left2] = create_sub_cuts_VS(reference_image, 706)
     [I3, top3, left3] = create_sub_cuts_VS(reference_image, 667)
@@ -305,9 +306,9 @@ def capillar_shifts(matr_728, matr_706, matr_667):
 
 
 def capillar_shifts1():
-    [I1, top1, left1] = create_sub_cuts_VS(r'C:\Users\joana\PycharmProjects\intensity_est\pg.jpg', 728)
-    [I2, top2, left2] = create_sub_cuts_VS(r'C:\Users\joana\PycharmProjects\intensity_est\pg.jpg', 706)
-    [I3, top3, left3] = create_sub_cuts_VS(r'C:\Users\joana\PycharmProjects\intensity_est\pg.jpg', 667)
+    [I1, top1, left1] = create_sub_cuts_VS(reference_link, 728)
+    [I2, top2, left2] = create_sub_cuts_VS(reference_link, 706)
+    [I3, top3, left3] = create_sub_cuts_VS(reference_link, 667)
 
     dwin = 280
     [discharge_coord1, discharge_coord2, discharge_coord3] = find_channel_edge_points(I1, I2, I3, visualize=False)
@@ -315,21 +316,21 @@ def capillar_shifts1():
     # print(discharge_coord2, top2 + discharge_coord2[0], top2 + discharge_coord2[0] + dwin, left2 + discharge_coord2[1], left2 + discharge_coord2[1] + dwin)
     # print(discharge_coord3, top3 - dwin + discharge_coord3[0], top3 + discharge_coord3[0], left3 - dwin + discharge_coord3[1], left3 + discharge_coord3[1])
 
-    m1 = create_submatrix(r'C:\Users\joana\PycharmProjects\intensity_est\pg.jpg',
+    m1 = create_submatrix(reference_link,
                           top1 - dwin + discharge_coord1[0], top1 + discharge_coord1[0],
                           left1 - dwin + discharge_coord1[1] - 15, left1 + discharge_coord1[1], None)
     # WRITEPRN(m1, r'E:\PhD_study\He_monitor\He_image_processing\a1.txt')
     [list1i, list1j] = capillar_position(m1)
     # print(list1i[0], list1j[0])
 
-    m2 = create_submatrix(r'C:\Users\joana\PycharmProjects\intensity_est\pg.jpg',
+    m2 = create_submatrix(reference_link,
                           top2 + discharge_coord2[0], top2 + discharge_coord2[0] + dwin, left2 + discharge_coord2[1],
                           left2 + discharge_coord2[1] + dwin, 'rotate')
     # WRITEPRN(m2, r'E:\PhD_study\He_monitor\He_image_processing\a2.txt')
     [list2i, list2j] = capillar_position(m2)
     # print(list2i[0], list2j[0])
 
-    m3 = create_submatrix(r'C:\Users\joana\PycharmProjects\intensity_est\pg.jpg',
+    m3 = create_submatrix(reference_link,
                           top3 - dwin + discharge_coord3[0], top3 + discharge_coord3[0],
                           left3 - dwin + discharge_coord3[1], left3 + discharge_coord3[1], None)
     # WRITEPRN(m3, r'E:\PhD_study\He_monitor\He_image_processing\a3.txt')
@@ -405,7 +406,7 @@ discharge = 40269
 frame = 110
 # path_discharge_image = r'E:\PhD_study\He_monitor\He_image_processing' + '\\' + str(discharge) + '\\Img000' + str(
 #     frame) + '.bmp'
-path_discharge_image = r'C:\Users\joana\PycharmProjects\intensity_est\pg.jpg'
+path_discharge_image = reference_link
 print(path_discharge_image)
 
 [I1, top1, left1] = create_sub_cuts_VS(path_discharge_image, 728)
@@ -422,11 +423,38 @@ im1_720 = create_cuts_new(path_discharge_image, 720)
 [a, b, c] = capillar_shifts1()  # РЎС‚Р°СЂС‹Р№ РєРѕРґ, РёСЃРїРѕР»СЊР·РѕРІР°РІС€РёР№СЃСЏ РґР»СЏ РѕР±СЂР°Р±РѕС‚РєРё. РќРµ СЃРѕРІРµСЂС€РµРЅРµРЅ Рё РЅРµ РѕС‚Р»Р°Р¶РµРЅ РґРѕ РєРѕРЅС†Р°
 [im_728, im_706, im_667, im_720, R, Z, cap_pos] = im_shift(a, b, c, im1_728, im1_706, im1_667, im1_720)
 
-# im_728, im_706, im_667, im_720 = im1_728, im1_706, im1_667, im1_720
 
 # print(len(im_728), len(im_728[0]))
 # print(type(im_728[0][0][0]))
-# Image.fromarray(np.asarray(im_728)).show()
+# print(np.array(im_728))
+im_728 = np.array(im_728)  # convert to np.array
+im_706 = np.array(im_706)
+im_667 = np.array(im_667)
+
+im_728L = np.zeros((len(im_728), len(im_728[0])))  # initial arrays for L-type pictures
+im_706L = np.zeros((len(im_706), len(im_706[0])))
+im_667L = np.zeros((len(im_667), len(im_667[0])))
+
+for i in range(len(im_728)):  # manually making L picture from RGB picture (grayscale = 0.299*R + 0.587*G + 0.114*B)
+    for j in range(len(im_728[0])):
+        im_728L[i][j] = int(round(0.299 * im_728[i][j][0] + 0.587*im_728[i][j][1] + 0.114*im_728[i][j][2], 0))
+for i in range(len(im_706)):
+    for j in range(len(im_706[0])):
+        im_706L[i][j] = int(round(0.299 * im_706[i][j][0] + 0.587*im_706[i][j][1] + 0.114*im_706[i][j][2], 0))
+for i in range(len(im_667)):
+    for j in range(len(im_667[0])):
+        im_667L[i][j] = int(round(0.299 * im_667[i][j][0] + 0.587*im_667[i][j][1] + 0.114*im_667[i][j][2], 0))
+
+
+intensity_728 = np.sum(im_728L)/np.size(im_728L)
+intensity_706 = np.sum(im_706L)/np.size(im_706L)
+intensity_667 = np.sum(im_667L)/np.size(im_667L)
+print(f'{intensity_728}, {intensity_706}, {intensity_667}')
+# print(im_728L)
+# print(np.size(im_728L))
+# Image.fromarray(im_728L).show()
+# Image.fromarray(im_706L).show()
+# Image.fromarray(im_667L).show()
 # Image.fromarray(np.array(im_706)).show()
 # Image.fromarray(np.array(im_667)).show()
 # Image.fromarray(np.array(im_720)).show()
