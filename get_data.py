@@ -1,7 +1,3 @@
-from PIL import Image
-import numpy as np
-import math
-from os import path
 from functions_evg import *
 
 
