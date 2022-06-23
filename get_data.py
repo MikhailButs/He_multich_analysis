@@ -1,3 +1,5 @@
+import numpy as np
+
 from functions_evg import *
 
 
@@ -18,33 +20,44 @@ def get_data(link):
     [a, b, c] = capillar_shifts1() # поиск капилляра
     [im_728, im_706, im_667, im_720, R, Z, cap_pos] = im_shift(a, b, c, im1_728, im1_706, im1_667, im1_720) # сдвиг картинки
 
-    im_728 = np.array(im_728)  # convert to np.array
-    im_706 = np.array(im_706)
-    im_667 = np.array(im_667)
+    # Image.fromarray(np.array(im_728)).convert('L').show()  # !!!useful!!!
+    # Image.fromarray(np.array(im_706)).convert('L').show()  # !!!useful!!!
+    # Image.fromarray(np.array(im_667)).convert('L').show()  # !!!useful!!!
 
-    im_728L = np.zeros((len(im_728), len(im_728[0])))  # initial arrays for L-type pictures
-    im_706L = np.zeros((len(im_706), len(im_706[0])))
-    im_667L = np.zeros((len(im_667), len(im_667[0])))
+    im_728L = np.array(Image.fromarray(np.array(im_728)).convert('L'))
+    im_706L = np.array(Image.fromarray(np.array(im_706)).convert('L'))
+    im_667L = np.array(Image.fromarray(np.array(im_667)).convert('L'))
 
-    for i in range(len(im_728)):  # manually making L picture from RGB picture (grayscale = 0.299*R + 0.587*G + 0.114*B)
-        for j in range(len(im_728[0])):
-            im_728L[i][j] = int(round(0.299 * im_728[i][j][0] + 0.587 * im_728[i][j][1] + 0.114 * im_728[i][j][2], 0))
-    for i in range(len(im_706)):
-        for j in range(len(im_706[0])):
-            im_706L[i][j] = int(round(0.299 * im_706[i][j][0] + 0.587 * im_706[i][j][1] + 0.114 * im_706[i][j][2], 0))
-    for i in range(len(im_667)):
-        for j in range(len(im_667[0])):
-            im_667L[i][j] = int(round(0.299 * im_667[i][j][0] + 0.587 * im_667[i][j][1] + 0.114 * im_667[i][j][2], 0))
+    # waste of time i denek
+    # im_728 = np.array(im_728)  # convert to np.array
+    # im_706 = np.array(im_706)
+    # im_667 = np.array(im_667)
+    #
+    # im_728L = np.zeros((len(im_728), len(im_728[0])))  # initial arrays for L-type pictures
+    # im_706L = np.zeros((len(im_706), len(im_706[0])))
+    # im_667L = np.zeros((len(im_667), len(im_667[0])))
+    #
+    # for i in range(len(im_728)):  # manually making L picture from RGB picture (grayscale = 0.299*R + 0.587*G + 0.114*B)
+    #     for j in range(len(im_728[0])):
+    #         im_728L[i][j] = int(round(0.299 * im_728[i][j][0] + 0.587 * im_728[i][j][1] + 0.114 * im_728[i][j][2], 0))
+    # for i in range(len(im_706)):
+    #     for j in range(len(im_706[0])):
+    #         im_706L[i][j] = int(round(0.299 * im_706[i][j][0] + 0.587 * im_706[i][j][1] + 0.114 * im_706[i][j][2], 0))
+    # for i in range(len(im_667)):
+    #     for j in range(len(im_667[0])):
+    #         im_667L[i][j] = int(round(0.299 * im_667[i][j][0] + 0.587 * im_667[i][j][1] + 0.114 * im_667[i][j][2], 0))
 
-    intensity_728 = np.sum(im_728L) / np.size(im_728L)
+    intensity_728 = np.sum(im_728L) / np.size(im_728L)  # im_---L - just matrix
     intensity_706 = np.sum(im_706L) / np.size(im_706L)
     intensity_667 = np.sum(im_667L) / np.size(im_667L)
 
-    # print(f'{intensity_728}, {intensity_706}, {intensity_667}')
+    # print(f'{intensity_728}, {intensity_706}, {intensity_667}')  # !!!useful!!!
 
-    # Image.fromarray(im_728L).show()
-    # Image.fromarray(im_706L).show()
-    # Image.fromarray(im_667L).show()
+    # # Image.fromarray(im_728L).show()
+    # # Image.fromarray(im_706L).show()
+    # # Image.fromarray(im_667L).show()
 
     return (im_728L, intensity_728), (im_706L, intensity_706), (im_667L, intensity_667)
 
+
+get_data(r'C:\Users\joana\PycharmProjects\He_multich_analysis\40264_data\(40264)131.jpg')
