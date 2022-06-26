@@ -7,7 +7,7 @@ from numpy import arange
 dir2work = os.path.normpath(input('Input an abs link:    '))
 try:
     images_list = os.listdir(dir2work)  # ['name1.jpg', 'name2.jpg', ...]
-except FileNotFoundError:#
+except FileNotFoundError:
     print('Invalid value')
     exit()
 
@@ -20,12 +20,21 @@ if ax_type == 'F' or ax_type == 'f':
 elif ax_type == 'T' or ax_type == 't':
     print('Time selected')
     ax_type = 't'
+
     time_step = input('Set time interval (ms):    ')
     try:
         time_step = float(time_step)
     except ValueError:
         print('Invalid value')
         exit()
+
+    exposure = input('Set exposure (ms):    ')
+    try:
+        exposure = float(exposure)
+    except ValueError:
+        print('Invalid value')
+        exit()
+
     initial_time = input('Set initial time (ms):    ')
     try:
         initial_time = float(initial_time)
@@ -40,7 +49,7 @@ intensity_list = ['' for i in range(len(images_list))]  # [[ch1, ch2, ch3], [ch1
 ch1_int = []
 ch2_int = []
 ch3_int = []
-time_list = [step * time_step + initial_time for step in range(len(images_list))] if ax_type == 't' else []
+time_list = [step * time_step + initial_time + exposure/2 for step in range(len(images_list))] if ax_type == 't' else []
 
 for img in images_list:
     ch1_data, ch2_data, ch3_data = get_data(os.path.join(dir2work, img))

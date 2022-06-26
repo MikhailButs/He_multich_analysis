@@ -60,4 +60,4 @@ def get_data(link):
     return (im_728L, intensity_728), (im_706L, intensity_706), (im_667L, intensity_667)
 
 
-get_data(r'C:\Users\joana\PycharmProjects\He_multich_analysis\40264_data\(40264)131.jpg')
+# get_data(r'C:\Users\joana\PycharmProjects\He_multich_analysis\40264_data\(40264)131.jpg')
