@@ -63,22 +63,23 @@ for i in range(len(intensity_list)):
     ch3_int.append(intensity_list[i][2])
 
 print(f'Ch1 intensity {ch1_int}')
-print(f'Ch2 intensity {ch2_int}')
-print(f'Ch3 intensity {ch3_int}')
+# print(f'Ch2 intensity {ch2_int}')
+# print(f'Ch3 intensity {ch3_int}')
 
 # x = [''for i in arange(78.145, 87.520, 0.625)] #40264_data
 
-plt.subplot(3, 1, 1)
-plt.title('I(t) channel 1 (728)' if ax_type == 't' else 'I(N) channel 1 (728)')
-plt.plot(time_list, ch1_int, 'r.-') if ax_type == 't' else plt.plot(ch1_int, 'r.-')
+# plt.subplot(3, 1, 1)
+# plt.title('I(t) channel 1 (728)' if ax_type == 't' else 'I(N) channel 1 (728)')
+# plt.plot(time_list, ch1_int, 'r.-') if ax_type == 't' else plt.plot(ch1_int, 'r.-')
 
-plt.subplot(3, 1, 2)
-plt.title('I(t) channel 2 (706)' if ax_type == 't' else 'I(N) channel 2 (706)')
-plt.plot(time_list, ch2_int, 'r.-') if ax_type == 't' else plt.plot(ch2_int, 'r.-')
+# plt.subplot(3, 1, 2)
+# plt.title('I(t) channel 2 (706)' if ax_type == 't' else 'I(N) channel 2 (706)')
+# plt.plot(time_list, ch2_int, 'r.-') if ax_type == 't' else plt.plot(ch2_int, 'r.-')
 
-plt.subplot(3, 1, 3)
+# plt.subplot(3, 1, 3)
 plt.title('I(t) channel 3 (667)' if ax_type == 't' else 'I(N) channel 3 (667)')
 plt.plot(time_list, ch3_int, 'r.-') if ax_type == 't' else plt.plot(ch3_int, 'r.-')
+# plt.legend()
 
 plt.tight_layout()
 plt.show()
