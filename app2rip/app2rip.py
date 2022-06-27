@@ -9,17 +9,20 @@ data, link = rp.extract(sht_dir, sht_num,
 
 x, y = rp.x_y(data[59])
 plt.subplot(3, 1, 1)
+print(x[-1])
 plt.plot(x, y)
 plt.title('D-alpha верхний купол')
 
 x, y = rp.x_y(data[35])
 plt.subplot(3, 1, 2)
 plt.plot(x, y)
+print(x[0:100])
 plt.title('N II')
 
 x, y = rp.x_y(data[81])
 plt.subplot(3, 1, 3)
 plt.plot(x, y)
+print(x[0:100])
 plt.title('Газонапуск He капилляр')
 
 plt.plot(y)

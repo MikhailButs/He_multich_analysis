@@ -2,7 +2,8 @@ import os
 import matplotlib.pyplot as plt
 from PyQt5 import QtWidgets
 from get_data import get_data
-from numpy import arange
+import numpy as np
+import app2rip.ripper as rp
 
 dir2work = os.path.normpath(input('Input an abs link:    '))
 try:
@@ -45,11 +46,26 @@ else:
     print('Invalid value')
     exit()
 
+if ax_type == 't':
+    sht_dir, sht_num = os.path.split(input('Abs link to .sht file:    '))
+    try:
+        sht_num = int(sht_num[3:-4])
+        data, link = rp.extract(sht_dir, sht_num,
+                                ['D-alfa верхний купол', 'Газонапуск He капиляр', 'N II'])
+    except ValueError:
+        print('Invalid value')
+        exit()
+    D_alpha_high_x, D_alpha_high_y = rp.x_y(data[35])
+    D_alpha_high_x = np.array(D_alpha_high_x) - 100
+    plt.plot(D_alpha_high_x, D_alpha_high_y)
+
 intensity_list = ['' for i in range(len(images_list))]  # [[ch1, ch2, ch3], [ch1, ch2, ch3], ...]
 ch1_int = []
 ch2_int = []
 ch3_int = []
+
 time_list = [step * time_step + initial_time + exposure/2 for step in range(len(images_list))] if ax_type == 't' else []
+
 
 for img in images_list:
     ch1_data, ch2_data, ch3_data = get_data(os.path.join(dir2work, img))
