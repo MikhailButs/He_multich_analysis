@@ -2,7 +2,7 @@ import ripper as rp
 import matplotlib.pyplot as plt
 from os import path
 
-sht_dir, sht_num = path.split(r'D:\home\projects\He_multich_analysis\app2rip\sht40264.SHT')
+sht_dir, sht_num = path.split(input('Abs link to .sht file:    '))
 sht_num = int(sht_num[3:-4])
 data, link = rp.extract(sht_dir, sht_num,
                         ['D-alfa верхний купол', 'Газонапуск He капиляр', 'N II'])
