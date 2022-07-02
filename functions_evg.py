@@ -2,6 +2,7 @@ from PIL import Image
 import numpy as np
 import math
 import os
+from numba import njit
 
 reference_link_basename = 'pg.jpg'
 reference_link = os.path.join(os.getcwd(), reference_link_basename)
@@ -80,10 +81,10 @@ def create_sub_cuts_VS(path, channel):
 
     return [create_submatrix(path, top, bot, left, right, None), top, left]
 
-
+@njit
 def K(t):
     coef = 0.3708159  # Р’ РѕРїРёСЃР°РЅРёРё С„СѓРЅРєС†РёРё ksmooth РІ Mathcad РїСЂРёРІРµРґРµРЅ РЅРµРїРѕР»РЅС‹Р№ РєРѕСЌС„С„РёС†РёРµРЅС‚: 0.37 -> coeff
-    return (math.exp(-(t ** 2) / (2 * coef ** 2)) / (math.sqrt(2 * math.pi) * coef))
+    return (np.exp(-(t ** 2) / (2 * coef ** 2)) / (math.sqrt(2 * math.pi) * coef))
 
 
 def ksmooth(vx, vy, b):
@@ -229,6 +230,7 @@ def create_cuts_moving(path, point, channel):
         return tuple(zip(*add1[::-1]))  # Р•С‰Рµ РѕРґРёРЅ РїРѕРІРѕСЂРѕС‚ РЅР° 90 РіСЂР°РґСѓСЃРѕРІ
 
 
+@njit
 def max_el(matr):
     m = -1e18
     for i in range(len(matr)):
@@ -252,14 +254,6 @@ def capillar_position(I3):
             if dI3[i][j] == a:
                 i_list.append(i + 20)
                 j_list.append(j)
-    if 0:
-        fig3 = Image.new('L', [len(matr[0]), len(matr)], color=0)
-        fig3_ = ImageDraw.Draw(fig3)
-        for i in range(len(matr[0])):
-            for j in range(len(matr)):
-                fig3_.point([i, j], matr[j][i])
-        fig3.show()
-
     return [i_list, j_list]
 
 
@@ -377,11 +371,11 @@ def im_shift(cap1, cap2, cap3, matr1, matr2, matr3, matr4):
     R_real_cap = 1.09576
     Z_real_cap = 0.26447
     phi = 47.36 * math.pi / 180
-    phi_Z = math.atan(
+    phi_Z = np.arctan(
         (Z_real_cap - Z_cap) / math.sqrt(R_cap ** 2 + R_real_cap ** 2 - 2 * R_cap * R_real_cap * math.cos(phi)))
-    phi_R = (math.pi / 2) - phi
-    length_per_pixel_R = lamp_diam / dpix / math.cos(phi_R)
-    length_per_pixel_Z = lamp_diam / dpix / math.cos(phi_Z)
+    phi_R = (np.pi / 2) - phi
+    length_per_pixel_R = lamp_diam / dpix / np.cos(phi_R)
+    length_per_pixel_Z = lamp_diam / dpix / np.cos(phi_Z)
     R = [[0 for j in range(width)] for i in range(height)]
     Z = [[0 for j in range(width)] for i in range(height)]
     for i in range(height):
