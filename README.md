@@ -1,4 +1,4 @@
-# He_multich_analysis
+# He multichannel analysis on Globus-M2 tokamak
 The code to analyze data from He-polychromator (492, 668, 706 nm) with high high speed camera Phantom on Globus-M2 tokamak to find ELM's
 
 !!! in the pipeline !!!
