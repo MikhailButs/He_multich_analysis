@@ -1,5 +1,7 @@
 import struct
 import re
+from numba import njit
+import numpy as np
 
 # to-do:
 # - add error handling
@@ -237,15 +239,17 @@ def decompress_name(compressed):
     return bytearray(buff).decode(encoding), graph
 
 
-def extract(path, shotn, requested=None):
-    if path is None or type(path) != str or len(path) == 0:
-        import urllib
-        from smb.SMBHandler import SMBHandler
-        opener = urllib.request.build_opener(SMBHandler)
-        print('Connecting to remote...')
-        file = opener.open('smb://guest:Globus-M@172.16.12.127/Data/sht%d.SHT' % shotn)
-    else:
-        file = open('%s/sht%d.SHT' % (path, shotn), 'rb')
+def extract(path, statusbar, requested=None):
+# def extract(path, shotn, requested=None):
+    # if path is None or type(path) != str or len(path) == 0:
+    #     import urllib
+    #     from smb.SMBHandler import SMBHandler
+    #     opener = urllib.request.build_opener(SMBHandler)
+    #     print('Connecting to remote...')
+    #     file = opener.open('smb://guest:Globus-M@172.16.12.127/Data/sht%d.SHT' % shotn)
+    # else:
+    #     file = open('%s/sht%d.SHT' % (path, shotn), 'rb')
+    file = open(path, 'rb')
     version_str = file.read(version_length).decode('ascii')
     version = -1
     if version_str[0:8] == 'ANALIZER':
@@ -256,21 +260,26 @@ def extract(path, shotn, requested=None):
         elif version_str[-1] == '2':
             version = 2
         else:
-            print("Unknown version of .sht file: %d" % version)
+            # print("Unknown version of .sht file: %d" % version)
+            statusbar.showMessage("Unknown version of .sht file: %d" % version, 3000)
             exit(1)
     else:
-        print("Unknown version header of .sht file: '%s'" % version_str)
+        # print("Unknown version header of .sht file: '%s'" % version_str)
+        statusbar.showMessage("Unknown version header of .sht file: '%s'" % version_str, 3000)
         exit(1)
 
     file.seek(1, 1)  # wtf?
 
     count = struct.unpack('i', file.read(size_int))[0]
-    print('Found %d signals.' % count)
+    # print('Found %d signals.' % count)
+    statusbar.showMessage('Found %d signals.' % count, 3000)
     if version == 0:
-        print('not implemented')
+        # print('not implemented')
+        statusbar.showMessage('not implemented', 3000)
         exit(2)
     elif version == 1:
-        print('not implemented')
+        # print('not implemented')
+        statusbar.showMessage('not implemented', 3000)
         exit(2)
     else:
         queue_num = []
@@ -284,14 +293,18 @@ def extract(path, shotn, requested=None):
                     if 0 <= item < count:
                         queue_num.append(item)
                     else:
-                        print('Requested item %d is out of range [%d, %d)' % (item, 0, count))
+                        # print('Requested item %d is out of range [%d, %d)' % (item, 0, count))
+                        statusbar.showMessage('Requested item %d is out of range [%d, %d)' % (item, 0, count), 3000)
                 elif type(item) == str:
                     queue_str.append(item)
                     result_map[item] = []
                 else:
-                    print('Unsupported type in request: %s' % type(item))
+                    # print('Unsupported type in request: %s' % type(item))
+                    statusbar.showMessage('Unsupported type in request: %s' % type(item), 3000)
         processed = 1
-        print('decompressing...')
+        # print('decompressing...')
+        statusbar.showMessage('decompressing...', 3000)
+        statusbar.repaint()
         result = {}
 
         for l in range(count):
@@ -308,8 +321,12 @@ def extract(path, shotn, requested=None):
                 if l in queue_num or flag:
                     huff = decompress_huffman(raw, graph)
                     result[l] = unpack_struct(decompress_rle(huff))
-                    print('  decompressed %d of %d' % (processed, len(queue_num)))
+                    # print('  decompressed %d of %d' % (processed, len(queue_num)))
+                    statusbar.showMessage('decompressed %d of %d' % (processed, len(queue_num)), 3000)
+                    statusbar.repaint()
                     processed += 1
         file.close()
-        print('done')
+        # print('done')
+        statusbar.showMessage('done', 3000)
+        statusbar.repaint()
         return result, result_map
