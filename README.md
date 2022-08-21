@@ -3,7 +3,7 @@ The code to analyze data from He-polychromator (492, 668, 706 nm) with high high
 
 !!! in the pipeline !!!
 
->This code is being developed by JoanaFedorenko & MikhailButs for Sergeev's Lab in SPbSTU to study edge modes in thermonuclear plasma of Globus-M2 tokamak in Ioffe >Institute St.Petersburg
+>This code is being developed by JoanaFedorenko & MikhailButs for Sergeev's Lab in SPbSTU to study edge modes in thermonuclear plasma of Globus-M2 tokamak in Ioffe Institute St.Petersburg
 
 File to start programm with UI :  mainWindowUi.py
 
