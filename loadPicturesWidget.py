@@ -157,15 +157,18 @@ class loadPicturesWidget(QtWidgets.QWidget, Ui_picturesWidget):
                 self.statusbar.showMessage('Can\'t extract data from images dir', 3000)
 
     def make_diff_pic(self):
-        @njit
         def check_limits(matrix):
+            temp_mtr = []
             for i in matrix:
                 for j in i:
                     if j < 0.:
                         j = 0.
-                    if j > 255.:
+                    elif j > 255.:
                         j = 255.
-            return matrix
+                    temp_mtr.append(j)
+            temp_mtr = np.array(temp_mtr)
+            temp_mtr = temp_mtr.reshape(matrix.shape)
+            return temp_mtr
 
         self.data.diff_pic_list.append(np.array([np.zeros_like(self.data.init_pic_list[0][0]), np.zeros_like(self.data.init_pic_list[0][1]), np.zeros_like(self.data.init_pic_list[0][2])]))
         for i in range(len(self.data.images_list) - 1):

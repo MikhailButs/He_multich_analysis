@@ -1,3 +1,5 @@
+import gc
+
 from PyQt5 import QtWidgets, QtGui, QtCore, Qt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT
 from matplotlib.figure import Figure
@@ -64,17 +66,20 @@ class viewPicturesWidget(QtWidgets.QMainWindow, Ui_viewWidget):
             self.axs[2][0].set(ylabel='Channel3')
         self.show_pictures()
 
+    # def clear_axes(self):
+    #     pass
+
     def show_pictures(self):
         if self.axs is not None:
             self.cur_pic_name = self.picNum_comboBox.currentText()
             cur_pic_num = self.data.images_list.index(self.cur_pic_name)
             if self.data.ChType == 'three':
-                # self.axs[0][0].clear()
-                # self.axs[1][0].clear()
-                # self.axs[2][0].clear()
-                # self.axs[0][1].clear()
-                # self.axs[1][1].clear()
-                # self.axs[2][1].clear()
+                self.axs[0][0].clear()
+                self.axs[1][0].clear()
+                self.axs[2][0].clear()
+                self.axs[0][1].clear()
+                self.axs[1][1].clear()
+                self.axs[2][1].clear()
                 self.axs[0][0].imshow(self.data.init_pic_list[cur_pic_num][0], cmap='hot')
                 self.axs[1][0].imshow(self.data.init_pic_list[cur_pic_num][1], cmap='hot')
                 self.axs[2][0].imshow(self.data.init_pic_list[cur_pic_num][2], cmap='hot')
@@ -82,6 +87,7 @@ class viewPicturesWidget(QtWidgets.QMainWindow, Ui_viewWidget):
                 self.axs[1][1].imshow(self.data.diff_pic_list[cur_pic_num][1], cmap='hot')
                 self.axs[2][1].imshow(self.data.diff_pic_list[cur_pic_num][2], cmap='hot')
             self.static_canvas.draw()
+        gc.collect(2)
 
     def show_next(self):
         if self.picNum_comboBox.currentIndex() < self.picNum_comboBox.count()-1:
@@ -95,12 +101,14 @@ class viewPicturesWidget(QtWidgets.QMainWindow, Ui_viewWidget):
         else:
             self.statusbar.showMessage('First picture', 3000)
 
-    @QtCore.pyqtSlot()
-    def refresh_slot(self):
-        self.refresh_pictures()
-
-    def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:
+    def keyPressEvent(self, event: QtGui.QKeyEvent):
         if event.key() == Qt.Qt.Key_Up:
             self.show_next()
         elif event.key() == Qt.Qt.Key_Down:
             self.show_prev()
+
+    @QtCore.pyqtSlot()
+    def refresh_slot(self):
+        self.refresh_pictures()
+
+

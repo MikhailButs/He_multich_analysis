@@ -91,6 +91,8 @@ class loadShtWidget(QtWidgets.QWidget, Ui_shtWidget):
                 #
                 # # self.change_norm()
 
+                # self.data.plots.pop()
+
                 self.data.sht_data = rp.extract(self.data.sht_file, self.statusbar)[0]
 
                 keys = list(self.data.sht_data.keys())
