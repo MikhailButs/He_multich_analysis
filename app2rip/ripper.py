@@ -239,7 +239,7 @@ def decompress_name(compressed):
     return bytearray(buff).decode(encoding), graph
 
 
-def extract(path, statusbar, requested=None):
+def extract(path, statusbar=None, requested=None):
 # def extract(path, shotn, requested=None):
     # if path is None or type(path) != str or len(path) == 0:
     #     import urllib
@@ -261,25 +261,30 @@ def extract(path, statusbar, requested=None):
             version = 2
         else:
             # print("Unknown version of .sht file: %d" % version)
-            statusbar.showMessage("Unknown version of .sht file: %d" % version, 3000)
+            if statusbar is not None:
+                statusbar.showMessage("Unknown version of .sht file: %d" % version, 3000)
             exit(1)
     else:
         # print("Unknown version header of .sht file: '%s'" % version_str)
-        statusbar.showMessage("Unknown version header of .sht file: '%s'" % version_str, 3000)
+        if statusbar is not None:
+            statusbar.showMessage("Unknown version header of .sht file: '%s'" % version_str, 3000)
         exit(1)
 
     file.seek(1, 1)  # wtf?
 
     count = struct.unpack('i', file.read(size_int))[0]
     # print('Found %d signals.' % count)
-    statusbar.showMessage('Found %d signals.' % count, 3000)
+    if statusbar is not None:
+        statusbar.showMessage('Found %d signals.' % count, 3000)
     if version == 0:
         # print('not implemented')
-        statusbar.showMessage('not implemented', 3000)
+        if statusbar is not None:
+            statusbar.showMessage('not implemented', 3000)
         exit(2)
     elif version == 1:
         # print('not implemented')
-        statusbar.showMessage('not implemented', 3000)
+        if statusbar is not None:
+            statusbar.showMessage('not implemented', 3000)
         exit(2)
     else:
         queue_num = []
@@ -294,17 +299,22 @@ def extract(path, statusbar, requested=None):
                         queue_num.append(item)
                     else:
                         # print('Requested item %d is out of range [%d, %d)' % (item, 0, count))
-                        statusbar.showMessage('Requested item %d is out of range [%d, %d)' % (item, 0, count), 3000)
+                        if statusbar is not None:
+                            statusbar.showMessage('Requested item %d is out of range [%d, %d)' % (item, 0, count), 3000)
+                        pass
                 elif type(item) == str:
                     queue_str.append(item)
                     result_map[item] = []
                 else:
                     # print('Unsupported type in request: %s' % type(item))
-                    statusbar.showMessage('Unsupported type in request: %s' % type(item), 3000)
+                    if statusbar is not None:
+                        statusbar.showMessage('Unsupported type in request: %s' % type(item), 3000)
+                        pass
         processed = 1
         # print('decompressing...')
-        statusbar.showMessage('decompressing...', 3000)
-        statusbar.repaint()
+        if statusbar is not None:
+            statusbar.showMessage('decompressing...', 3000)
+            statusbar.repaint()
         result = {}
 
         for l in range(count):
@@ -322,11 +332,15 @@ def extract(path, statusbar, requested=None):
                     huff = decompress_huffman(raw, graph)
                     result[l] = unpack_struct(decompress_rle(huff))
                     # print('  decompressed %d of %d' % (processed, len(queue_num)))
-                    statusbar.showMessage('decompressed %d of %d' % (processed, len(queue_num)), 3000)
-                    statusbar.repaint()
+                    if statusbar is not None:
+                        statusbar.showMessage('decompressed %d of %d' % (processed, len(queue_num)), 3000)
+                        statusbar.repaint()
+                    elif statusbar is None:
+                        print('decompressed %d of %d' % (processed, len(queue_num)))
                     processed += 1
         file.close()
         # print('done')
-        statusbar.showMessage('done', 3000)
-        statusbar.repaint()
+        if statusbar is not None:
+            statusbar.showMessage('done', 3000)
+            statusbar.repaint()
         return result, result_map
