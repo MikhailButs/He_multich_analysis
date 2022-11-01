@@ -93,25 +93,51 @@ class loadShtWidget(QtWidgets.QWidget, Ui_shtWidget):
 
                 # self.data.plots.pop()
 
-                self.data.sht_data = rp.extract(self.data.sht_file, self.statusbar)[0]
-
-                keys = list(self.data.sht_data.keys())
-                self.sht_tableWidget.setRowCount(len(keys))
-                for num in range(len(keys)):
-                    item = self.data.sht_data[keys[num]]
-                    self.sht_tableWidget.setItem(num, 0, QtWidgets.QTableWidgetItem(item['name']))
-                    self.sht_tableWidget.setItem(num, 1, QtWidgets.QTableWidgetItem(item['comm']))
-                    sht_time = item['time']
+                # self.data.sht_data = rp.extract(self.data.sht_file, self.statusbar)[0]
+                self.data.sht_data = []
+                temp_sht_data = rp.extract(self.data.sht_file, self.statusbar)[0]
+                for num in temp_sht_data.keys():
+                    x_data, y_data = rp.x_y(temp_sht_data[num])
+                    sht_time = temp_sht_data[num]['time']
                     time2set = f'{sht_time["monthDay"]}.{sht_time["month"]}.{sht_time["year"]} {sht_time["hour"]}:{sht_time["minute"]}:{sht_time["second"]}.{sht_time["mSecond"]}'
-                    self.sht_tableWidget.setItem(num, 2, QtWidgets.QTableWidgetItem(time2set))
-                    self.sht_tableWidget.setItem(num, 3, QtWidgets.QTableWidgetItem(str(item['#ch'])))
-                    rate = round(len(item['data']) / (item['tMax'] - item['tMin']) / 1000)  # kHz
-                    self.sht_tableWidget.setItem(num, 4, QtWidgets.QTableWidgetItem(f'{rate} kHz'))
+                    rate = round(len(temp_sht_data[num]['data']) / (temp_sht_data[num]['tMax'] - temp_sht_data[num]['tMin']) / 1000)  # kHz
+                    comment = temp_sht_data[num]['comm']
+                    ch = temp_sht_data[num]['#ch']
+                    norm = 1.0
+                    bias = 0.0
+                    temp_dict = {'x': x_data, 'y': y_data, 'time': time2set, 'ratekhz': rate, 'comm': comment, '#ch': ch, 'norm': norm, 'bias': bias}
+                    temp_arr = np.array([temp_sht_data[num]['name'], temp_dict])
+                    self.data.sht_data.append(temp_arr)
+                self.data.sht_data = np.array(self.data.sht_data)
+
+                # DELETE
+                # keys = list(self.data.sht_data.keys())67
+                # self.sht_tableWidget.setRowCount(len(keys))
+                # for num in range(len(keys)):
+                #     item = self.data.sht_data[keys[num]]
+                #     self.sht_tableWidget.setItem(num, 0, QtWidgets.QTableWidgetItem(item['name']))
+                #     self.sht_tableWidget.setItem(num, 1, QtWidgets.QTableWidgetItem(item['comm']))
+                #     sht_time = item['time']
+                #     time2set = f'{sht_time["monthDay"]}.{sht_time["month"]}.{sht_time["year"]} {sht_time["hour"]}:{sht_time["minute"]}:{sht_time["second"]}.{sht_time["mSecond"]}'
+                #     self.sht_tableWidget.setItem(num, 2, QtWidgets.QTableWidgetItem(time2set))
+                #     self.sht_tableWidget.setItem(num, 3, QtWidgets.QTableWidgetItem(str(item['#ch'])))
+                #     rate = round(len(item['data']) / (item['tMax'] - item['tMin']) / 1000)  # kHz
+                #     self.sht_tableWidget.setItem(num, 4, QtWidgets.QTableWidgetItem(f'{rate} kHz'))
+                # self.sht_tableWidget.resizeColumnsToContents()
+
+                self.sht_tableWidget.setRowCount(len(self.data.sht_data))
+                for num in range(len(self.data.sht_data)):
+                    item = self.data.sht_data[num]
+                    self.sht_tableWidget.setItem(num, 0, QtWidgets.QTableWidgetItem(item[0]))  # name
+                    self.sht_tableWidget.setItem(num, 1, QtWidgets.QTableWidgetItem(item[1]['comm']))
+                    self.sht_tableWidget.setItem(num, 2, QtWidgets.QTableWidgetItem(item[1]['time']))
+                    self.sht_tableWidget.setItem(num, 3, QtWidgets.QTableWidgetItem(str(item[1]['#ch'])))
+                    self.sht_tableWidget.setItem(num, 4, QtWidgets.QTableWidgetItem(f'{item[1]["ratekhz"]} kHz'))
                 self.sht_tableWidget.resizeColumnsToContents()
 
                 self.data.got_sht_file = self.data.sht_file
                 self.fileEndTime_label.setText(time.ctime(time.time()))
-                self.refresh_signal.emit()
+                self.refresh_signal.emit()  # need to remake
                 self.setDisabled(False)
 
             except ValueError:

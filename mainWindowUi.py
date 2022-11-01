@@ -2,6 +2,7 @@ import sys
 from PyQt5 import QtWidgets, QtGui, QtCore
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT
 from matplotlib.figure import Figure
+import sip
 from matplotlib.widgets import Cursor
 from matplotlib import pyplot as plt
 import numpy as np
@@ -27,6 +28,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         super().__init__(parent=parent)
         self.setupUi(self)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
+
+        self.refresh_signal.connect(self.refresh_slot)
 
         self.statusbar = self.statusBar()
         self.statusbar.show()
@@ -55,70 +58,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.viewPicturesWidget = viewPicturesWidget(data=self.data)
         self.actionpictures.triggered.connect(self.show_viewPicturesWidget)
-        self.refresh_signal.connect(self.viewPicturesWidget.refresh_slot)
+        self.refresh_signal.connect(self.viewPicturesWidget.refresh_slot)  # ВЕРНУТЬ
 
-        # self.images_lineEdit.textChanged.connect(self.load_images)
-        # self.sht_lineEdit.textChanged.connect(self.load_sht)
-        # self.interval_doubleSpinBox.valueChanged.connect(self.get_settings)
-        # self.exposure_doubleSpinBox.valueChanged.connect(self.get_settings)
-        # self.trigger_doubleSpinBox.valueChanged.connect(self.get_settings)
-        # self.Xtype_comboBox.currentTextChanged.connect(self.change_type)  # to change
         self.plot_pushButton.clicked.connect(self.make_plot)
-        # self.He_checkBox.clicked.connect(self.check2show)
-        # self.NII_checkBox.clicked.connect(self.check2show)
-        # self.Dalpha_checkBox.clicked.connect(self.check2show)
-        # self.int1_checkBox.clicked.connect(self.check2show)
-        # self.int2_checkBox.clicked.connect(self.check2show)
-        # self.int3_checkBox.clicked.connect(self.check2show)
-        self.Dalpha_norm_doubleSpinBox.valueChanged.connect(self.check2show)
-        self.NII_norm_doubleSpinBox.valueChanged.connect(self.check2show)
-        self.He_norm_doubleSpinBox.valueChanged.connect(self.check2show)
-        self.int1_norm_doubleSpinBox.valueChanged.connect(self.check2show)
-        self.int2_norm_doubleSpinBox.valueChanged.connect(self.check2show)
-        self.int3_norm_doubleSpinBox.valueChanged.connect(self.check2show)
-
-        # images
-        self.images_dir = ''
-        self.got_images_dir = ''
-        self.images_list = []
-        self.exposure = 0
-        self.interval = 0
-        self.trigger = 0
-        self.Xtype = 'time'
-        self.intensity_list = []
-        self.time_list = []
-        self.frames_list = []
-        self.int1 = np.array([])
-        self.int1_scaled = np.array([])
-        self.int2 = np.array([])
-        self.int2_scaled = np.array([])
-        self.int3 = np.array([])
-        self.int3_scaled = np.array([])
-
-        # sht
-        self.sht_dir = ''
-        self.sht_num = ''
-        self.sht_file = ''
-        self.got_sht_file = ''
-        self.Dalpha_x = np.array([])
-        self.Dalpha_x_frames = []
-        self.Dalpha_y = np.array([])
-        self.Dalpha_y_scaled = np.array([])
-        self.NII_x = np.array([])
-        self.NII_x_frames = []
-        self.NII_y = np.array([])
-        self.NII_y_scaled = np.array([])
-        self.He_x = np.array([])
-        self.He_x_frames = []
-        self.He_y = np.array([])
-        self.He_y_scaled = np.array([])
-
-        # common
-        self.to_show = {'Dalpha': 0, 'NII': 0, 'He': 0, 'int1': 0, 'int2': 0, 'int3': 0}
-        self.norms = {'Dalpha': 1., 'NII': 1., 'He': 1., 'int1': 1., 'int2': 1., 'int3': 1.}
 
         # self.change_type()
-        self.check2show()
+        # self.check2show()
 
     def show_loadPicturesWidget(self):
         self.loadPicturesWidget.show()
@@ -300,6 +245,59 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         ax1.set_ylabel('Arbitrary units')
         self.static_canvas.draw()
         self.statusbar.showMessage('Plotted', 3000)
+
+    def refresh_slot(self):
+        # self.static_canvas.figure.clear()
+        # gc.collect()
+
+        self.clear_sht_box()
+        self.fill_sht_box()
+
+
+    def clear_sht_box(self):
+        children = self.sht_data_groupBox.children()
+        for i in children:
+            if isinstance(i, QtWidgets.QGridLayout):
+                pass
+            elif isinstance(i, QtWidgets.QLabel) and (i.text() == 'graph' or i.text() == 'bias' or i.text() == 'norm'):
+                pass
+            else:
+                self.sht_data_groupBox.layout().removeWidget(i)
+                i.deleteLater()
+                i = None
+        gc.collect()
+
+    def clear_cine_box(self):
+        children = self.cine_data_groupBox.children()
+        for i in children:
+            if isinstance(i, QtWidgets.QGridLayout):
+                pass
+            elif isinstance(i, QtWidgets.QLabel) and (i.text() == 'graph' or i.text() == 'bias' or i.text() == 'norm'):
+                pass
+            else:
+                self.cine_data_groupBox.layout().removeWidget(i)
+                i.deleteLater()
+                i = None
+        gc.collect()
+
+    def fill_sht_box(self):
+        for i in self.data.sht_data:
+            name = i[0]
+            base = 'sht' + str(np.where(self.data.sht_data == i)[0][0])
+            # eval(f'self.{base}_label = QtWidgets.QLabel(self.sht_data_groupBox)')
+            # # eval(f'self.{base}_label.setObjectName({name})')
+            # print('hi')
+            # eval(f'self.gridLayout.addWidget(self.{base}_label, {self.data.sht_data.index(i)+1}, 0, 1, 1)')
+            # code2comp = (f'self.{base}_label = QtWidgets.QLabel(self.scrollArea)\n'
+            #              f'sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)\n'
+            #              f'sizePolicy.setHorizontalStretch(0)\n'
+            #              f'sizePolicy.setVerticalStretch(0)\n'
+            #              f'sizePolicy.setHeightForWidth(self.label_7.sizePolicy().hasHeightForWidth())\n'
+            #              f'self.{base}_label.setSizePolicy(sizePolicy)\n'
+            #              f'self.gridLayout_3.addWidget(self.{base}_label, {np.where(self.data.sht_data == i)[0][0]+1}, 0, 1, 1)\n'
+            #              f'self.{base}_label.setText(name)\n')
+            # exec(compile(code2comp, 'sumstring', 'exec'))
+            # self.scrollArea.show()
 
 
 def main():

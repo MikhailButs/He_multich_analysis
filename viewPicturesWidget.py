@@ -110,5 +110,6 @@ class viewPicturesWidget(QtWidgets.QMainWindow, Ui_viewWidget):
     @QtCore.pyqtSlot()
     def refresh_slot(self):
         self.refresh_pictures()
-
+        print('Hi')
+        # pass
 
