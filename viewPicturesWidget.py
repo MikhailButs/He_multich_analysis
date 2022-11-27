@@ -17,6 +17,8 @@ class viewPicturesWidget(QtWidgets.QMainWindow, Ui_viewWidget):
         self.data = data
         self.statusbar = self.statusBar()
         self.statusbar.show()
+        self.add_max_on_diff = 0
+        self.add_max_on_init = 0
 
         self._main = QtWidgets.QWidget()
         self.setCentralWidget(self._main)
@@ -37,6 +39,8 @@ class viewPicturesWidget(QtWidgets.QMainWindow, Ui_viewWidget):
         self.picNum_comboBox.currentTextChanged.connect(self.show_pictures)
         self.next_pushButton.clicked.connect(self.show_next)
         self.prev_pushButton.clicked.connect(self.show_prev)
+        self.diap_diff_spinBox.valueChanged.connect(self.show_pictures)
+        self.diap_init_spinBox.valueChanged.connect(self.show_pictures)
 
 
         # for i in ('1', '2', '3'):
@@ -80,12 +84,26 @@ class viewPicturesWidget(QtWidgets.QMainWindow, Ui_viewWidget):
                 self.axs[0][1].clear()
                 self.axs[1][1].clear()
                 self.axs[2][1].clear()
-                self.axs[0][0].imshow(self.data.init_pic_list[cur_pic_num][0], cmap='hot')
-                self.axs[1][0].imshow(self.data.init_pic_list[cur_pic_num][1], cmap='hot')
-                self.axs[2][0].imshow(self.data.init_pic_list[cur_pic_num][2], cmap='hot')
-                self.axs[0][1].imshow(self.data.diff_pic_list[cur_pic_num][0], cmap='hot')
-                self.axs[1][1].imshow(self.data.diff_pic_list[cur_pic_num][1], cmap='hot')
-                self.axs[2][1].imshow(self.data.diff_pic_list[cur_pic_num][2], cmap='hot')
+                self.add_max_on_diff = self.diap_diff_spinBox.value()
+                self.add_max_on_init = self.diap_init_spinBox.value()
+                init_pic0 = self.data.init_pic_list[cur_pic_num][0]
+                init_pic0[0][0] = self.add_max_on_init
+                init_pic1 = self.data.init_pic_list[cur_pic_num][1]
+                init_pic0[0][0] = self.add_max_on_init
+                init_pic2 = self.data.init_pic_list[cur_pic_num][2]
+                init_pic0[0][0] = self.add_max_on_init
+                diff_pic0 = self.data.diff_pic_list[cur_pic_num][0]
+                diff_pic0[0][0] = self.add_max_on_diff
+                diff_pic1 = self.data.diff_pic_list[cur_pic_num][1]
+                diff_pic1[0][0] = self.add_max_on_diff
+                diff_pic2 = self.data.diff_pic_list[cur_pic_num][2]
+                diff_pic2[0][0] = self.add_max_on_diff
+                self.axs[0][0].imshow(init_pic0, cmap='hot')
+                self.axs[1][0].imshow(init_pic1, cmap='hot')
+                self.axs[2][0].imshow(init_pic2, cmap='hot')
+                self.axs[0][1].imshow(diff_pic0, cmap='hot')
+                self.axs[1][1].imshow(diff_pic1, cmap='hot')
+                self.axs[2][1].imshow(diff_pic2, cmap='hot')
             self.static_canvas.draw()
         gc.collect(2)
 
@@ -110,6 +128,4 @@ class viewPicturesWidget(QtWidgets.QMainWindow, Ui_viewWidget):
     @QtCore.pyqtSlot()
     def refresh_slot(self):
         self.refresh_pictures()
-        print('Hi')
-        # pass
 

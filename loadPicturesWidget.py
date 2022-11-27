@@ -28,6 +28,7 @@ class loadPicturesWidget(QtWidgets.QWidget, Ui_picturesWidget):
         self.statusbar = QtWidgets.QStatusBar()
         self.verticalLayout_2.addWidget(self.statusbar)
         self.statusbar.show()
+        self.filter_size = 0
 
         # CONNECTIONS
         self.picturesLink_lineEdit.textChanged.connect(self.load_images)
@@ -38,6 +39,7 @@ class loadPicturesWidget(QtWidgets.QWidget, Ui_picturesWidget):
         self.trigger_doubleSpinBox.valueChanged.connect(self.get_settings)
         self.oneChPic_radioButton.clicked.connect(self.ch_type)
         self.threeChPic_radioButton.clicked.connect(self.ch_type)
+        self.filter_spinBox.valueChanged.connect(self.get_settings)
 
         gc.collect()
 
@@ -183,7 +185,7 @@ class loadPicturesWidget(QtWidgets.QWidget, Ui_picturesWidget):
     def make_filtered_pic(self):
         self.data.init_flt_pic_list = []
         for im3 in self.data.init_pic_list:
-            self.data.init_flt_pic_list.append(np.array([np.array(Image.fromarray(im).filter(ImageFilter.MedianFilter(size=3)).convert('L'), dtype=np.float) for im in im3]))
+            self.data.init_flt_pic_list.append(np.array([np.array(Image.fromarray(im).filter(ImageFilter.MedianFilter(size=self.filter_size)).convert('L'), dtype=np.float) for im in im3]))
         self.data.init_flt_pic_list = np.array(self.data.init_flt_pic_list)
 
     def get_settings(self):
@@ -193,6 +195,13 @@ class loadPicturesWidget(QtWidgets.QWidget, Ui_picturesWidget):
         # self.Xtype = self.Xtype_comboBox.currentText()
         self.data.time_list = [step * self.data.interval + self.data.trigger + self.data.exposure / 2
                                for step in range(len(self.data.images_list))]
+        filter_size = self.filter_spinBox.value()
+        if filter_size % 2 == 0:
+            filter_size += 1
+        self.filter_spinBox.blockSignals(True)
+        self.filter_spinBox.setValue(filter_size)
+        self.filter_spinBox.blockSignals(False)
+        self.filter_size = filter_size
         # self.time2frames()
 
     def ch_type(self):
