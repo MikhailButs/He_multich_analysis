@@ -104,7 +104,7 @@ class journalWidget(QtWidgets.QWidget, Ui_journalWidget):
                 stat = file.stat()
                 v += stat.st_size
                 item = QtWidgets.QTreeWidgetItem([file.name, str(round(stat.st_size / 1048576, 1)),
-                                                  time.strftime('%X %d.%m.%y', time.gmtime(stat.st_ctime))])
+                                                  time.strftime('%X %d.%m.%y', time.localtime(stat.st_mtime))])
                 if file.name[-5:] == '.cine':
                     item.setIcon(0, QtGui.QIcon(
                         os.path.join(os.curdir, 'icons', 'cinefile.png')))
@@ -125,7 +125,7 @@ class journalWidget(QtWidgets.QWidget, Ui_journalWidget):
                 stat = file.stat()
                 v += stat.st_size
                 item = QtWidgets.QTreeWidgetItem([file.name, str(round(stat.st_size / 1048576, 1)),
-                                                  time.strftime('%X %d.%m.%y', time.gmtime(stat.st_ctime))])
+                                                  time.strftime('%X %d.%m.%y', time.localtime(stat.st_mtime))])
                 if file.name[-4:] == '.SHT':
                     item.setIcon(0, QtGui.QIcon(
                         os.path.join(os.curdir, 'icons', 'shtfile.png')))
