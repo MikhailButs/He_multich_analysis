@@ -240,7 +240,7 @@ def decompress_name(compressed):
 
 
 def extract(path, statusbar=None, requested=None):
-# def extract(path, shotn, requested=None):
+    # def extract(path, shotn, requested=None):
     # if path is None or type(path) != str or len(path) == 0:
     #     import urllib
     #     from smb.SMBHandler import SMBHandler
@@ -341,6 +341,6 @@ def extract(path, statusbar=None, requested=None):
         file.close()
         # print('done')
         if statusbar is not None:
-            statusbar.showMessage('done', 3000)
+            statusbar.showMessage('extracted', 3000)
             statusbar.repaint()
         return result, result_map

@@ -1,7 +1,7 @@
 import os
 import matplotlib.pyplot as plt
 from PyQt5 import QtWidgets
-from get_data import get_data
+from get_data import get_data3
 import numpy as np
 import app2rip.ripper as rp
 
@@ -87,7 +87,7 @@ time_list = [step * time_step + initial_time + exposure/2 for step in range(len(
 
 
 for img in images_list:
-    ch1_data, ch2_data, ch3_data = get_data(os.path.join(dir2work, img))
+    ch1_data, ch2_data, ch3_data = get_data3(os.path.join(dir2work, img))
     temp_intensity = [ch1_data[1], ch2_data[1], ch3_data[1]]
     intensity_list[images_list.index(img)] = temp_intensity
     print(f'Image {images_list.index(img)+1} from {len(images_list)} made')

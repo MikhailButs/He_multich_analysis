@@ -1,11 +1,8 @@
-from PyQt5 import QtWidgets, QtGui, QtCore
-import sys
+from PyQt5 import QtWidgets, QtCore
 import os
 import numpy as np
 import gc
 import time
-from threading import Thread
-from multiprocessing import Process
 from loadShtUiDesign import Ui_shtWidget
 from dataCore import dataCore
 import app2rip.ripper as rp
@@ -40,6 +37,7 @@ class loadShtWidget(QtWidgets.QWidget, Ui_shtWidget):
                 raise ValueError
             self.data.sht_file = os.path.normpath(self.shtLink_lineEdit.text())
             self.data.sht_dir, sht_tail = os.path.split(self.data.sht_file)
+            # TODO try except
             self.data.sht_num = int(sht_tail[3:-4])
             self.statusbar.showMessage(f'Got {self.data.sht_num} shot', 3000)
         except ValueError:
@@ -53,14 +51,9 @@ class loadShtWidget(QtWidgets.QWidget, Ui_shtWidget):
         self.shtLink_lineEdit.setText(data_dir)
 
     def get_sht_data(self):
-        sht_thread = Thread(target=self.get_sht_data_subfunc)
-        sht_thread.start()
-        # sht_process = Process(target=self.get_sht_data_subfunc)
-        # sht_process.start()
-
-    def get_sht_data_subfunc(self):
         if self.data.got_sht_file != self.data.sht_file and self.data.sht_file != '':
             try:
+                self.statusbar.showMessage('analysing...', 3000)
                 self.setDisabled(True)
                 self.fileStartTime_label.setText(time.ctime(time.time()))
                 self.fileEndTime_label.setText('')
@@ -72,29 +65,7 @@ class loadShtWidget(QtWidgets.QWidget, Ui_shtWidget):
                 self.sht_tableWidget.setHorizontalHeaderLabels(headers)
                 self.repaint()
 
-                # data, link = rp.extract(self.data.sht_file,
-                #                         ['D-alfa верхний купол', 'Газонапуск He капиляр', 'N II'])
-                # Dalpha_x, Dalpha_y = rp.x_y(data[link['D-alfa верхний купол'][0]])
-                # Dalpha_y = np.array(Dalpha_y)
-                # self.data.Dalpha_y = Dalpha_y / np.sum(np.abs(Dalpha_y)) * len(Dalpha_y)
-                # self.data.Dalpha_x = np.array(Dalpha_x) * 1000 - 100
-                #
-                # NII_x, NII_y = rp.x_y(data[link['N II'][0]])
-                # NII_y = np.array(NII_y)
-                # self.data.NII_y = NII_y / np.sum(np.abs(NII_y)) * len(NII_y)
-                # self.data.NII_x = np.array(NII_x) * 1000 - 100
-                #
-                # He_x, He_y = rp.x_y(data[link['Газонапуск He капиляр'][0]])
-                # He_y = np.array(He_y)
-                # self.data.He_y = He_y / np.sum(np.abs(He_y)) * len(He_y)
-                # self.data.He_x = np.array(He_x)
-                #
-                # # self.change_norm()
-
-                # self.data.plots.pop()
-
-                # self.data.sht_data = rp.extract(self.data.sht_file, self.statusbar)[0]
-                self.data.sht_data = []
+                self.data.sht_data = {}
                 temp_sht_data = rp.extract(self.data.sht_file, self.statusbar)[0]
                 for num in temp_sht_data.keys():
                     x_data, y_data = rp.x_y(temp_sht_data[num])
@@ -103,41 +74,23 @@ class loadShtWidget(QtWidgets.QWidget, Ui_shtWidget):
                     rate = round(len(temp_sht_data[num]['data']) / (temp_sht_data[num]['tMax'] - temp_sht_data[num]['tMin']) / 1000)  # kHz
                     comment = temp_sht_data[num]['comm']
                     ch = temp_sht_data[num]['#ch']
-                    norm = 1.0
-                    bias = 0.0
-                    temp_dict = {'x': x_data, 'y': y_data, 'time': time2set, 'ratekhz': rate, 'comm': comment, '#ch': ch, 'norm': norm, 'bias': bias}
-                    temp_arr = np.array([temp_sht_data[num]['name'], temp_dict])
-                    self.data.sht_data.append(temp_arr)
-                self.data.sht_data = np.array(self.data.sht_data)
-
-                # DELETE
-                # keys = list(self.data.sht_data.keys())67
-                # self.sht_tableWidget.setRowCount(len(keys))
-                # for num in range(len(keys)):
-                #     item = self.data.sht_data[keys[num]]
-                #     self.sht_tableWidget.setItem(num, 0, QtWidgets.QTableWidgetItem(item['name']))
-                #     self.sht_tableWidget.setItem(num, 1, QtWidgets.QTableWidgetItem(item['comm']))
-                #     sht_time = item['time']
-                #     time2set = f'{sht_time["monthDay"]}.{sht_time["month"]}.{sht_time["year"]} {sht_time["hour"]}:{sht_time["minute"]}:{sht_time["second"]}.{sht_time["mSecond"]}'
-                #     self.sht_tableWidget.setItem(num, 2, QtWidgets.QTableWidgetItem(time2set))
-                #     self.sht_tableWidget.setItem(num, 3, QtWidgets.QTableWidgetItem(str(item['#ch'])))
-                #     rate = round(len(item['data']) / (item['tMax'] - item['tMin']) / 1000)  # kHz
-                #     self.sht_tableWidget.setItem(num, 4, QtWidgets.QTableWidgetItem(f'{rate} kHz'))
-                # self.sht_tableWidget.resizeColumnsToContents()
+                    temp_dict = {'x': np.array(x_data)*1e3, 'y': np.array(y_data), 'time': time2set, 'ratekhz': rate, 'comm': comment, '#ch': ch}
+                    self.data.sht_data[temp_sht_data[num]['name']] = temp_dict
 
                 self.sht_tableWidget.setRowCount(len(self.data.sht_data))
-                for num in range(len(self.data.sht_data)):
-                    item = self.data.sht_data[num]
-                    self.sht_tableWidget.setItem(num, 0, QtWidgets.QTableWidgetItem(item[0]))  # name
-                    self.sht_tableWidget.setItem(num, 1, QtWidgets.QTableWidgetItem(item[1]['comm']))
-                    self.sht_tableWidget.setItem(num, 2, QtWidgets.QTableWidgetItem(item[1]['time']))
-                    self.sht_tableWidget.setItem(num, 3, QtWidgets.QTableWidgetItem(str(item[1]['#ch'])))
-                    self.sht_tableWidget.setItem(num, 4, QtWidgets.QTableWidgetItem(f'{item[1]["ratekhz"]} kHz'))
+                for num, key in enumerate(self.data.sht_data.keys()):
+                    item = self.data.sht_data[key]
+                    self.sht_tableWidget.setItem(num, 0, QtWidgets.QTableWidgetItem(key))  # name
+                    self.sht_tableWidget.setItem(num, 1, QtWidgets.QTableWidgetItem(item['comm']))
+                    self.sht_tableWidget.setItem(num, 2, QtWidgets.QTableWidgetItem(item['time']))
+                    self.sht_tableWidget.setItem(num, 3, QtWidgets.QTableWidgetItem(str(item['#ch'])))
+                    self.sht_tableWidget.setItem(num, 4, QtWidgets.QTableWidgetItem(f'{item["ratekhz"]} kHz'))
                 self.sht_tableWidget.resizeColumnsToContents()
 
                 self.data.got_sht_file = self.data.sht_file
                 self.fileEndTime_label.setText(time.ctime(time.time()))
                 self.refresh_signal.emit()  # need to remake
+                self.statusbar.showMessage('Done!', 3000)
                 self.setDisabled(False)
 
             except ValueError:

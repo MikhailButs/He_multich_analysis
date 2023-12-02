@@ -1,6 +1,8 @@
 import gc
-
-from PyQt5 import QtWidgets, QtGui, QtCore, Qt
+import os
+import numpy as np
+from PIL import Image
+from PyQt5 import QtWidgets, QtGui, QtCore
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT
 from matplotlib.figure import Figure
 from viewPicturesUiDesign import Ui_viewWidget
@@ -41,16 +43,7 @@ class viewPicturesWidget(QtWidgets.QMainWindow, Ui_viewWidget):
         self.prev_pushButton.clicked.connect(self.show_prev)
         self.diap_diff_spinBox.valueChanged.connect(self.show_pictures)
         self.diap_init_spinBox.valueChanged.connect(self.show_pictures)
-
-
-        # for i in ('1', '2', '3'):
-        #     eval(f'self.ax_initial{i} = self.static_canvas1.figure.add_subplot(3, 3, 1)')
-        # self.ax_initial1 = self.static_canvas.figure.add_subplot(1, 3, 1)
-        # self.ax_initial1.set_title('Initial')
-        # self.ax_diff1 = self.static_canvas.figure.add_subplot(1, 3, 2)
-        # self.ax_diff1.set_title('Differential')
-        # self.ax_final1 = self.static_canvas.figure.add_subplot(1, 3, 3)
-        # self.ax_final1.set_title('Final')
+        self.save_pushButton.clicked.connect(self.save_pages)
 
     def refresh_pictures(self):
         self.picNum_comboBox.blockSignals(True)
@@ -60,50 +53,43 @@ class viewPicturesWidget(QtWidgets.QMainWindow, Ui_viewWidget):
         self.static_canvas.figure.clear('all')
         self.static_canvas.figure.suptitle('Pictures from camera')
 
-        if self.data.ChType == 'three':
-            self.axs = self.static_canvas.figure.subplots(3, 3)
-            self.axs[0][0].set(title='Initial')
-            self.axs[0][1].set(title='Differential')
-            self.axs[0][2].set(title='Final')
-            self.axs[0][0].set(ylabel='Channel1')
-            self.axs[1][0].set(ylabel='Channel2')
-            self.axs[2][0].set(ylabel='Channel3')
+        n_ch = len(list(self.data.intensity_data.keys()))
+        self.axs = self.static_canvas.figure.subplots(n_ch, 3)
+        self.static_canvas.figure.tight_layout()
+        exec(f"self.axs{'' if n_ch==1 else '[0]'}[0].set(title='Initial')")
+        exec(f"self.axs{'' if n_ch==1 else '[0]'}[1].set(title='Differential')")
+        exec(f"self.axs{'' if n_ch==1 else '[0]'}[2].set(title='Final')")
+        for num, key in enumerate(self.data.images_data.keys()):
+            exec(f"self.axs{'' if n_ch==1 else '[num]'}[0].set(ylabel=key)")
+            exec(f"self.axs{'' if n_ch==1 else '[num]'}[0].set(ylabel=key)")
+            exec(f"self.axs{'' if n_ch==1 else '[num]'}[0].set(ylabel=key)")
         self.show_pictures()
-
-    # def clear_axes(self):
-    #     pass
 
     def show_pictures(self):
         if self.axs is not None:
             self.cur_pic_name = self.picNum_comboBox.currentText()
-            cur_pic_num = self.data.images_list.index(self.cur_pic_name)
-            if self.data.ChType == 'three':
-                self.axs[0][0].clear()
-                self.axs[1][0].clear()
-                self.axs[2][0].clear()
-                self.axs[0][1].clear()
-                self.axs[1][1].clear()
-                self.axs[2][1].clear()
-                self.add_max_on_diff = self.diap_diff_spinBox.value()
-                self.add_max_on_init = self.diap_init_spinBox.value()
-                init_pic0 = self.data.init_pic_list[cur_pic_num][0]
-                init_pic0[0][0] = self.add_max_on_init
-                init_pic1 = self.data.init_pic_list[cur_pic_num][1]
-                init_pic0[0][0] = self.add_max_on_init
-                init_pic2 = self.data.init_pic_list[cur_pic_num][2]
-                init_pic0[0][0] = self.add_max_on_init
-                diff_pic0 = self.data.diff_pic_list[cur_pic_num][0]
-                diff_pic0[0][0] = self.add_max_on_diff
-                diff_pic1 = self.data.diff_pic_list[cur_pic_num][1]
-                diff_pic1[0][0] = self.add_max_on_diff
-                diff_pic2 = self.data.diff_pic_list[cur_pic_num][2]
-                diff_pic2[0][0] = self.add_max_on_diff
-                self.axs[0][0].imshow(init_pic0, cmap='hot')
-                self.axs[1][0].imshow(init_pic1, cmap='hot')
-                self.axs[2][0].imshow(init_pic2, cmap='hot')
-                self.axs[0][1].imshow(diff_pic0, cmap='hot')
-                self.axs[1][1].imshow(diff_pic1, cmap='hot')
-                self.axs[2][1].imshow(diff_pic2, cmap='hot')
+            n_ch = len(list(self.data.intensity_data.keys()))
+            self.add_max_on_diff = self.diap_diff_spinBox.value()
+            self.add_max_on_init = self.diap_init_spinBox.value()
+            self.static_canvas.figure.suptitle(f'Pictures '
+                                               f'{self.data.images_data[list(self.data.images_data.keys())[0]]["images"][self.cur_pic_name]["start_time"]}'
+                                               f' - '
+                                               f'{self.data.images_data[list(self.data.images_data.keys())[0]]["images"][self.cur_pic_name]["end_time"]}'
+                                               f' ms')
+            for num, key in enumerate(self.data.images_data.keys()):
+                exec(f"self.axs{'' if n_ch==1 else '[num]'}[0].clear()")
+                exec(f"self.axs{'' if n_ch==1 else '[num]'}[1].clear()")
+                exec(f"self.axs{'' if n_ch==1 else '[num]'}[2].clear()")
+                initial = self.data.images_data[key]['images'][self.cur_pic_name]['initial']
+                differential = self.data.images_data[key]['images'][self.cur_pic_name]['differential']
+                final = self.data.images_data[key]['images'][self.cur_pic_name]['final']
+                exec(f"self.axs{'' if n_ch==1 else '[num]'}[0].imshow(initial, cmap='magma')")
+                exec(f"self.axs{'' if n_ch==1 else '[num]'}[1].imshow(differential, cmap='magma')")
+                exec(f"self.axs{'' if n_ch == 1 else '[num]'}[2].imshow(final, cmap='magma')")
+            exec(f"self.axs{'' if n_ch == 1 else '[0]'}[0].set(title='Initial')")
+            exec(f"self.axs{'' if n_ch == 1 else '[0]'}[1].set(title='Differential')")
+            exec(f"self.axs{'' if n_ch == 1 else '[0]'}[2].set(title='Final')")
+
             self.static_canvas.draw()
         gc.collect(2)
 
@@ -120,12 +106,35 @@ class viewPicturesWidget(QtWidgets.QMainWindow, Ui_viewWidget):
             self.statusbar.showMessage('First picture', 3000)
 
     def keyPressEvent(self, event: QtGui.QKeyEvent):
-        if event.key() == Qt.Qt.Key_Up:
+        if event.key() == QtCore.Qt.Key_D:
             self.show_next()
-        elif event.key() == Qt.Qt.Key_Down:
+        elif event.key() == QtCore.Qt.Key_A:
             self.show_prev()
+
+    def resizeEvent(self, a0: QtGui.QResizeEvent) -> None:
+        self.static_canvas.figure.tight_layout()
+
+    def save_pages(self):
+        data_dir = QtWidgets.QFileDialog.getExistingDirectory(self, "Выбрать папку для сохранения", ".")
+        if data_dir is not None and data_dir != '':
+            for key in self.data.images_data.keys():
+                with open(os.path.join(data_dir, f'{key}_initial.npy'), 'wb') as file:
+                    np.save(file, self.data.images_data[key]['images'][self.cur_pic_name]['initial'])
+                with open(os.path.join(data_dir, f'{key}_differential.npy'), 'wb') as file:
+                    np.save(file, self.data.images_data[key]['images'][self.cur_pic_name]['differential'])
+                with open(os.path.join(data_dir, f'{key}_final.npy'), 'wb') as file:
+                    np.save(file, self.data.images_data[key]['images'][self.cur_pic_name]['final'])
+                Image.fromarray(self.data.images_data[key]['images'][self.cur_pic_name]['initial'], mode='L').save(
+                    os.path.join(data_dir, f'{key}_initial.bmp'))
+                Image.fromarray(self.data.images_data[key]['images'][self.cur_pic_name]['differential'], mode='L').save(
+                    os.path.join(data_dir, f'{key}_differential.bmp'))
+                Image.fromarray(self.data.images_data[key]['images'][self.cur_pic_name]['final'], mode='L').save(
+                    os.path.join(data_dir, f'{key}_final.bmp'))
+
+            self.statusbar.showMessage(f'Saved to {data_dir}', 3000)
+        else:
+            self.statusbar.showMessage("Didn't save the pictures", 3000)
 
     @QtCore.pyqtSlot()
     def refresh_slot(self):
         self.refresh_pictures()
-

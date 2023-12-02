@@ -1,9 +1,8 @@
 import numpy as np
-
 from functions_evg import *
 
 
-def get_data(link):
+def get_data3(link):
     path_discharge_image = link
 
     [I1, top1, left1] = create_sub_cuts_VS(path_discharge_image, 728)  # грубая обрезка
@@ -24,9 +23,9 @@ def get_data(link):
     # Image.fromarray(np.array(im_706)).convert('L').show()  # !!!useful!!!
     # Image.fromarray(np.array(im_667)).convert('L').show()  # !!!useful!!!
 
-    im_728L = np.array(Image.fromarray(np.array(im_728)).convert('L'))
-    im_706L = np.array(Image.fromarray(np.array(im_706)).convert('L'))
-    im_667L = np.array(Image.fromarray(np.array(im_667)).convert('L'))
+    im_728L = np.array(Image.fromarray(np.array(im_728)).convert('L'), dtype=np.int16)
+    im_706L = np.array(Image.fromarray(np.array(im_706)).convert('L'), dtype=np.int16)
+    im_667L = np.array(Image.fromarray(np.array(im_667)).convert('L'), dtype=np.int16)
 
     # waste of time i denek
     # im_728 = np.array(im_728)  # convert to np.array

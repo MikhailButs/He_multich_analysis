@@ -2,7 +2,7 @@ import os
 from PIL import Image, ImageFilter
 import numpy as np
 from numba import njit
-from get_data import get_data
+from get_data import get_data3
 from matplotlib import pyplot as plt
 
 dir2work = os.path.normpath(input('Input an abs link to images:    '))
@@ -30,7 +30,7 @@ def check_limits(matrix):
 int = []
 int_ch = []
 for img in images_list:
-    ch1_data, ch2_data, ch3_data = get_data(os.path.join(dir2work, img))
+    ch1_data, ch2_data, ch3_data = get_data3(os.path.join(dir2work, img))
     if images_list.index(img) > 0:
         current_images = np.array([ch1_data[0], ch2_data[0], ch3_data[0]])
         im = Image.fromarray(current_images[2]).filter(ImageFilter.MedianFilter(size=3)).convert('L')

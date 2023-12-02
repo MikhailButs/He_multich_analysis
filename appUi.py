@@ -9,7 +9,7 @@ from appUiDesign import Ui_MainWindow
 import os
 import gc
 import app2rip.ripper as rp
-from get_data import get_data
+from get_data import get_data3
 import mplcursors
 from blittedCursor import BlittedCursor
 from numba import njit
@@ -214,7 +214,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                   for step in range(len(self.images_list))]
                 self.time2frames()
                 for img in self.images_list:
-                    ch1_data, ch2_data, ch3_data = get_data(os.path.join(self.images_dir, img))
+                    ch1_data, ch2_data, ch3_data = get_data3(os.path.join(self.images_dir, img))
                     temp_intensity = [ch1_data[1], ch2_data[1], ch3_data[1]]
                     self.intensity_list[self.images_list.index(img)] = temp_intensity
                     print(f'Image {self.images_list.index(img) + 1} from {len(self.images_list)} made')
