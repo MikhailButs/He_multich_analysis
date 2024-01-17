@@ -154,7 +154,7 @@ def main():
     app = QtWidgets.QApplication(sys.argv)
     app.setStyle('Fusion')
     mv = MainWindow()
-    mv.show()
+    mv.showMaximized()
     sys.exit(app.exec_())
 
 
